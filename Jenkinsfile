@@ -21,10 +21,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh '''
-                    test -f build/index.html
-                    echo "index.html exists"
-                '''
+                sh 'npm test'
             }
         }
     }
