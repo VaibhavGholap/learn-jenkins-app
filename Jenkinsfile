@@ -8,6 +8,12 @@ pipeline {
 
     stages {
 
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm ci'
+            }
+        }
+
         stage('Build') {
             steps {
                 sh '''
