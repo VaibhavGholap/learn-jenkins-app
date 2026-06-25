@@ -30,6 +30,12 @@ pipeline {
         }
     }
 
+    post{
+        always{
+            junit 'test-results/junit.xml'
+        }
+    }
+
     post {
         success {
             archiveArtifacts artifacts: 'build/**'
