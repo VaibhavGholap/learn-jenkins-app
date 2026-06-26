@@ -1,52 +1,28 @@
 pipeline {
-
-    // Define the Jenkins agent using a Docker container
     agent {
         docker {
-            // Use the Node.js 18 Alpine image
-            image 'node:18-alpine'
-
-            // Reuse the same workspace on the Jenkins node
+            image 'mcr.microsoft.com/playwright:v1.54.2-jammy'
             reuseNode true
         }
     }
 
     stages {
-
-        stage('Install Dependencies') {
+        stage('Install') {
             steps {
-                // Install all dependencies from package-lock.json
                 sh 'npm ci'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                // Create a build directory and a sample index.html file
-                sh '''
-                    mkdir -p build
-                    touch build/index.html
-                    npx playwright install
-                    npx playwright test --reporter=html
-                '''
             }
         }
 
         stage('Test') {
             steps {
-                // Execute test cases defined in package.json
-                sh 'npm test'
+                sh 'npx playwright test --reporter=junit'
             }
         }
     }
 
     post {
-
-        // Actions that run regardless of pipeline result
         always {
-
-            // Publish JUnit test results in Jenkins
-            junit 'test-results/junit.xml'
+            junit 'test-results/*.xml'
         }
     }
 }
