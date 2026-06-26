@@ -26,6 +26,8 @@ pipeline {
                 sh '''
                     mkdir -p build
                     touch build/index.html
+
+                    npx playwright test --reporter=html
                 '''
             }
         }
