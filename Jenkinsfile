@@ -1,25 +1,59 @@
 pipeline {
-    agent {
-        docker {
-            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
-            reuseNode true
-        }
-    }
+    agent any
 
     stages {
-        stage('Install') {
+        /*
+
+        stage('Build') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
             steps {
-                sh 'npm ci'
+                sh '''
+                    ls -la
+                    node --version
+                    npm --version
+                    npm ci
+                    npm run build
+                    ls -la
+                '''
+            }
+        }
+        */
+
+        stage('Test') {
+            agent {
+                docker {
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
+
+            steps {
+                sh '''
+                    #test -f build/index.html
+                    npm test
+                '''
             }
         }
 
-        stage('Test') {
+        stage('E2E') {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    reuseNode true
+                }
+            }
+
             steps {
-                // We start the app in the background, wait for port 3000 to be live, and then execute tests
                 sh '''
-                    npm start & 
-                    npx wait-on http://localhost:3000
-                    PLAYWRIGHT_JUNIT_OUTPUT_NAME=results.xml npx playwright test --reporter=junit
+                    npm install serve
+                    node_modules/.bin/serve -s build &
+                    sleep 10
+                    npx playwright test
                 '''
             }
         }
@@ -27,7 +61,7 @@ pipeline {
 
     post {
         always {
-            junit '**/results.xml'
+            junit 'jest-results/junit.xml'
         }
     }
 }
