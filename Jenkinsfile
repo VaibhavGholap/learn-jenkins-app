@@ -15,14 +15,17 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'npx playwright test --reporter=junit'
+                // Set the output path for the junit report explicitly
+                sh 'PLAYWRIGHT_JUNIT_OUTPUT_NAME=results.xml npx playwright test --reporter=junit'
             }
         }
     }
 
     post {
-         {
-            junit 'test-results/*.xml'
+        // FIXED: Added the required conditional block (always)
+        always {
+            // FIXED: Pointed to the correct root or relative location where the XML is generated
+            junit '**/results.xml'
         }
     }
 }
